@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}{% if product %}Edit Product{% else %}Add Product{% endif %}{% endblock %}
+
+{% block content %}
+    <h2>{% if product %}Edit Product{% else %}Add New Product{% endif %}</h2>
+    <form method="post" enctype="multipart/form-data">
+        <div class="form-group">
+            <label for="product_id">Product ID:</label>
+            {# Use |d('') filter to provide a default empty string if product or product.product_id is None #}
+            <input type="text" id="product_id" name="product_id" value="{{ product.product_id|d('') }}" {% if product %}readonly{% endif %} required>
+            {% if product %}<small>(Product ID cannot be changed)</small>{% endif %}
+        </div>
+        <div class="form-group">
+            <label for="product_code">Product Code (SKU):</label>
+            <input type="text" id="product_code" name="product_code" value="{{ product.product_code|d('') }}" required>
+        </div>
+        <div class="form-group">
+            <label for="product_name">Product Name:</label>
+            <input type="text" id="product_name" name="product_name" value="{{ product.product_name|d('') }}" required>
+        </div>
+        <div class="form-group">
+            <label for="product_description">Product Description:</label>
+            {# For textarea, use |d('') directly #}
+            <textarea id="product_description" name="product_description" rows="5" required>{{ product.product_description|d('') }}</textarea>
+        </div>
+        <div class="form-group">
+            <label for="product_image">Product Image:</label>
+            <input type="file" id="product_image" name="product_image" accept="image/*">
+            {# Check if product and product.product_image_path exist before displaying #}
+            {% if product and product.product_image_path %}
+                <p>Current Image: <img src="{{ product.product_image_path }}" alt="Current Image" class="form-image-preview"></p>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label for="product_effective_date">Effective Date:</label>
+            {# Specific handling for dates: check if both product and the date attribute exist before formatting #}
+            <input type="date" id="product_effective_date" name="product_effective_date"
+                   value="{% if product and product.product_effective_date %}{{ product.product_effective_date.strftime('%Y-%m-%d') }}{% else %}{% endif %}"
+                   required>
+        </div>
+        <div class="form-group">
+            <label for="product_expiry_date">Expiry Date:</label>
+            {# Specific handling for dates #}
+            <input type="date" id="product_expiry_date" name="product_expiry_date"
+                   value="{% if product and product.product_expiry_date %}{{ product.product_expiry_date.strftime('%Y-%m-%d') }}{% else %}{% endif %}"
+                   required>
+        </div>
+        <button type="submit" class="button {% if product %}edit-button{% else %}add-button{% endif %}">
+            {% if product %}Update Product{% else %}Add Product{% endif %}
+        </button>
+        <a href="{{ url_for('list_products') }}" class="button cancel-button">Cancel</a>
+    </form>
+{% endblock %}
